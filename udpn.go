@@ -7,6 +7,8 @@ import (
 	"bufio"
 	"strings"
 	"net/http"
+	"bytes"
+	"strconv"
 )
 
 type Response struct {
@@ -29,7 +31,8 @@ func Search(st string, mx time.Duration) (res []Response, err error) {
 		return
 	}
 	
-	err = makeSearchRequest(conn, st, mx)
+	broadcastAddr, bytes := makeSearchRequest(st, mx)
+	_, err = conn.WriteTo(bytes, broadcastAddr)
 	if err != nil {
 		return
 	}
@@ -39,7 +42,7 @@ func Search(st string, mx time.Duration) (res []Response, err error) {
 }
 
 func ParseResponse(httpResponse string, responseAddr *net.UDPAddr) (res Response, err error) {
-	request, err := http.NewRequest("M-SEARCH", "239.255.255.250:1900", strings.NewReader(""))
+	request, err := http.NewRequest("M-SEARCH", "239.255.255.250:1900/*", strings.NewReader(""))
 	if err != nil {
 		return
 	}
@@ -60,11 +63,12 @@ func ParseResponse(httpResponse string, responseAddr *net.UDPAddr) (res Response
 	res.USN = headers.Get("usn")
 	res.Addr = responseAddr
 	
-	location, err := response.Location()
-	if err != nil {
-		return
+	if headers.Get("location") != "" {
+		res.Location, err = response.Location()
+		if err != nil {
+			return
+		}
 	}
-	res.Location = location
 	
 	date := headers.Get("date")
 	if date != "" {
@@ -107,15 +111,30 @@ func listenForResponse() (conn *net.UDPConn, err error) {
 	return
 }
 
-func makeSearchRequest(conn *net.UDPConn, st string, mx time.Duration) (err error) {	
-	discoveryAddr, _ := net.ResolveUDPAddr("udp", "239.255.255.250:1900")
-	requestBody := "M-SEARCH * HTTP/1.1\r\f" +
-		"HOST:239.255.255.250:1900\r\f" +
-		"ST:" + st + "\r\f" +
-		"Man:\"ssdp:discover\"\r\f" +
-		"MX:" + string(mx / time.Second) + "\r\f" +
-		"\r\f"
-	_, err = conn.WriteTo([]byte(requestBody), discoveryAddr)
+func makeSearchRequest(st string, mx time.Duration) (broadcastAddr *net.UDPAddr, searchBytes []byte) {
+	// Needed to specify * as PATh in HTTP
+	replaceMePlaceHolder := "/replacemewithstar"
 	
-	return
+	broadcastAddr, _ = net.ResolveUDPAddr("udp", "239.255.255.250:1900")
+	request, _ := http.NewRequest("M-SEARCH", 
+		"http://" + broadcastAddr.String() + replaceMePlaceHolder, strings.NewReader(""))
+	
+	headers := request.Header
+	headers.Set("User-Agent", "")
+	headers.Set("st", st)
+	headers.Set("man", `"ssdp:discover"`)
+	headers.Set("mx", strconv.FormatInt(int64(mx / time.Second), 10))
+	
+	searchBytes = make([]byte, 0, 1024)
+	buffer := bytes.NewBuffer(searchBytes)
+	err := request.Write(buffer)
+	if err != nil {
+		panic("Fatal error writing to buffer. This should never happen (in theory).")
+	}
+	searchBytes = buffer.Bytes()
+	
+	// Path should be * unescape. This is a hack to accomplish that.
+	searchBytes = bytes.Replace(searchBytes, []byte(replaceMePlaceHolder), []byte("*"), 1)
+	
+	return 
 }

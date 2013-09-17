@@ -7,6 +7,17 @@ import (
 	"time"
 )
 
+func Test_listenForResponse(t *testing.T) {
+	conn, err := listenForResponse()
+	if err != nil {
+		t.Fatal("Error listening for response.", err)
+	}
+	if conn == nil {
+		t.Error("Connection is nil.")
+	}
+	defer conn.Close()
+}
+
 func Test_ParseResponse(t *testing.T) {
 	responseBody := "HTTP/1.1 200 OK\r\n" +
 		"CACHE-CONTROL: max-age=100\r\n" +
@@ -19,7 +30,6 @@ func Test_ParseResponse(t *testing.T) {
 		"\r\n"
 		
 	responseAddr, _ := net.ResolveUDPAddr("udp", "10.1.2.3:1900")
-	
 	response, err := ParseResponse(responseBody, responseAddr)
 	if err != nil {
 		t.Fatal("Error while parsing the response.", err)
@@ -40,6 +50,26 @@ func Test_ParseResponse(t *testing.T) {
 	gmt, _ := time.LoadLocation("UTC")
 	date := time.Date(2013, time.August, 18, 8, 49, 37, 0, gmt)
 	assertEqual(t, date, response.Date, "response.Date")
+}
+
+func Test_ParseResponse_NoDateOrLocation(t *testing.T) {
+	responseBody := "HTTP/1.1 200 OK\r\n" +
+		"\r\n"
+		
+	responseAddr, _ := net.ResolveUDPAddr("udp", "10.1.2.3:1900")
+	response, err := ParseResponse(responseBody, responseAddr)
+	if err != nil {
+		t.Fatal("Error while parsing the response.", err)
+	}
+	
+	emptyTime := time.Time{}
+	if response.Date != emptyTime {
+		t.Error("Date should be nil")
+	}
+	
+	if response.Location != nil {
+		t.Error("Location should be nil")
+	}
 }
 
 func assertEqual(t *testing.T, expected interface{}, actual interface{}, errorMessage string) {
