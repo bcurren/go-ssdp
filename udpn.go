@@ -23,14 +23,14 @@ const (
 
 // The search response from a device implementing UDPN.
 type SearchResponse struct {
-	Control  string
-	Server   string
-	ST       string
-	Ext      string
-	USN      string
-	Location *url.URL
-	Date     time.Time
-	Addr     *net.UDPAddr
+	Control      string
+	Server       string
+	ST           string
+	Ext          string
+	USN          string
+	Location     *url.URL
+	Date         time.Time
+	ResponseAddr *net.UDPAddr
 }
 
 // The search reader interface to read UDP packets on the wire with a timeout
@@ -138,7 +138,7 @@ func parseSearchResponse(httpResponse string, responseAddr *net.UDPAddr) (res Se
 	res.ST = headers.Get("st")
 	res.Ext = headers.Get("ext")
 	res.USN = headers.Get("usn")
-	res.Addr = responseAddr
+	res.ResponseAddr = responseAddr
 
 	if headers.Get("location") != "" {
 		res.Location, err = response.Location()

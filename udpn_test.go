@@ -123,7 +123,7 @@ func Test_parseSearchResponse(t *testing.T) {
 	assertEqual(t, "upnp:rootdevice", response.ST, "response.ST")
 	assertEqual(t, "", response.Ext, "response.Ext")
 	assertEqual(t, "uuid:2f402f80-da50-11e1-9b23-0017880a4c69::upnp:rootdevice", response.USN, "response.USN")
-	assertEqual(t, responseAddr, response.Addr, "response.Addr")
+	assertEqual(t, responseAddr, response.ResponseAddr, "response.Addr")
 
 	url, _ := url.Parse("http://10.1.2.3:80/description.xml")
 	if url.String() != response.Location.String() {
