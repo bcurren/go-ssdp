@@ -1,32 +1,32 @@
 package udpn
 
 import (
+	"bytes"
 	"net"
 	"net/url"
 	"testing"
 	"time"
-	"bytes"
 )
 
-type timeoutError struct {	
+type timeoutError struct {
 }
 
-func (e *timeoutError) Error() string { 
-	return "i/o timeout" 
+func (e *timeoutError) Error() string {
+	return "i/o timeout"
 }
 
-func (e *timeoutError) Timeout() bool { 
-	return true 
+func (e *timeoutError) Timeout() bool {
+	return true
 }
 
-func (e *timeoutError) Temporary() bool { 
-	return true 
+func (e *timeoutError) Temporary() bool {
+	return true
 }
 
 type stubSearchReader struct {
-	readIteration int
-	readBuffers []string
-	readAddr *net.UDPAddr
+	readIteration      int
+	readBuffers        []string
+	readAddr           *net.UDPAddr
 	storedReadDeadline time.Time
 }
 
@@ -35,12 +35,12 @@ func (s *stubSearchReader) ReadFromUDP(b []byte) (n int, addr *net.UDPAddr, err 
 	if s.readIteration >= len(s.readBuffers) {
 		return 0, nil, &timeoutError{}
 	}
-	
+
 	// Create and return the current buffer for the iteration
 	buffer := bytes.NewBufferString(s.readBuffers[s.readIteration])
 	n, err = buffer.Read(b)
 	addr = s.readAddr
-	
+
 	s.readIteration += 1
 	return
 }
@@ -85,18 +85,18 @@ func Test_buildSearchRequest(t *testing.T) {
 func Test_readSearchResponses(t *testing.T) {
 	stub := &stubSearchReader{}
 	stub.readAddr, _ = net.ResolveUDPAddr("udp", "192.168.0.12:1000")
-	
+
 	stub.readBuffers = make([]string, 0, 2)
 	stub.readBuffers = append(stub.readBuffers, "HTTP/1.1 200 OK\r\n\r\n")
 	stub.readBuffers = append(stub.readBuffers, "HTTP/1.1 200 OK\r\n\r\n")
-	
+
 	responses, err := readSearchResponses(stub, time.Duration(1)*time.Second)
 	if err != nil {
 		t.Fatal("Error while retrieving reading search responses.", err)
 	}
-	
+
 	if len(stub.readBuffers) != len(responses) {
-		t.Fatalf("Expected %d responses but received %d.", len(stub.readBuffers), 
+		t.Fatalf("Expected %d responses but received %d.", len(stub.readBuffers),
 			len(responses))
 	}
 }

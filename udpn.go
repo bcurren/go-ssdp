@@ -15,8 +15,8 @@ import (
 
 const (
 	// The port for UDPN discovery
-	Port        = 1900
-	
+	Port = 1900
+
 	// The IP for UDPN broadcast
 	BroadcastIP = "239.255.255.250"
 )
@@ -41,7 +41,7 @@ type searchReader interface {
 }
 
 // Search the network for UDPN devices using the given search string and duration
-// to discover new devices. This function will return an array of SearchReponses 
+// to discover new devices. This function will return an array of SearchReponses
 // discovered.
 func Search(st string, mx time.Duration) (responses []SearchResponse, err error) {
 	conn, err := listenForSearchResponses()
