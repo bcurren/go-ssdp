@@ -44,37 +44,33 @@ type searchReader interface {
 // Search the network for UDPN devices using the given search string and duration
 // to discover new devices. This function will return an array of SearchReponses
 // discovered.
-func Search(st string, mx time.Duration) (responses []SearchResponse, err error) {
+func Search(st string, mx time.Duration) ([]*SearchResponse, error) {
 	conn, err := listenForSearchResponses()
-	if conn != nil {
-		defer conn.Close()
-	}
 	if err != nil {
-		return
+		return nil, err
 	}
+	defer conn.Close()
 
 	searchBytes, broadcastAddr := buildSearchRequest(st, mx)
 	// Write search bytes on the wire so all devices can respond
 	_, err = conn.WriteTo(searchBytes, broadcastAddr)
 	if err != nil {
-		return
+		return nil, err
 	}
-
-	responses, err = readSearchResponses(conn, mx)
-	return
+	
+	return readSearchResponses(conn, mx)
 }
 
-func listenForSearchResponses() (conn *net.UDPConn, err error) {
+func listenForSearchResponses() (*net.UDPConn, error) {
 	serverAddr, _ := net.ResolveUDPAddr("udp", "0.0.0.0:"+strconv.Itoa(Port))
-	conn, err = net.ListenUDP("udp", serverAddr)
-	return
+	return net.ListenUDP("udp", serverAddr)
 }
 
-func buildSearchRequest(st string, mx time.Duration) (searchBytes []byte, broadcastAddr *net.UDPAddr) {
+func buildSearchRequest(st string, mx time.Duration) ([]byte, *net.UDPAddr) {
 	// Placeholder to replace with * later on
 	replaceMePlaceHolder := "/replacemewithstar"
 
-	broadcastAddr, _ = net.ResolveUDPAddr("udp", BroadcastIP+":"+strconv.Itoa(Port))
+	broadcastAddr, _ := net.ResolveUDPAddr("udp", BroadcastIP+":"+strconv.Itoa(Port))
 	request, _ := http.NewRequest("M-SEARCH",
 		"http://"+broadcastAddr.String()+replaceMePlaceHolder, strings.NewReader(""))
 
@@ -84,7 +80,7 @@ func buildSearchRequest(st string, mx time.Duration) (searchBytes []byte, broadc
 	headers.Set("man", `"ssdp:discover"`)
 	headers.Set("mx", strconv.Itoa(int(mx/time.Second)))
 
-	searchBytes = make([]byte, 0, 1024)
+	searchBytes := make([]byte, 0, 1024)
 	buffer := bytes.NewBuffer(searchBytes)
 	err := request.Write(buffer)
 	if err != nil {
@@ -95,11 +91,11 @@ func buildSearchRequest(st string, mx time.Duration) (searchBytes []byte, broadc
 	// Replace placeholder with *. Needed because request always escapes * when it shouldn't
 	searchBytes = bytes.Replace(searchBytes, []byte(replaceMePlaceHolder), []byte("*"), 1)
 
-	return
+	return searchBytes, broadcastAddr
 }
 
-func readSearchResponses(reader searchReader, duration time.Duration) (responses []SearchResponse, err error) {
-	responses = make([]SearchResponse, 0, 10)
+func readSearchResponses(reader searchReader, duration time.Duration) ([]*SearchResponse, error) {
+	responses := make([]*SearchResponse, 0, 10)
 	// Only listen for responses for duration amount of time.
 	reader.SetReadDeadline(time.Now().Add(duration))
 
@@ -120,19 +116,19 @@ func readSearchResponses(reader searchReader, duration time.Duration) (responses
 		responses = append(responses, response)
 	}
 
-	return
+	return responses, nil
 }
 
-func parseSearchResponse(httpResponse io.Reader, responseAddr *net.UDPAddr) (res SearchResponse, err error) {
+func parseSearchResponse(httpResponse io.Reader, responseAddr *net.UDPAddr) (*SearchResponse, error) {
 	reader := bufio.NewReader(httpResponse)
 	request := &http.Request{} // Needed for ReadResponse but doesn't have to be real
 	response, err := http.ReadResponse(reader, request)
 	if err != nil {
-		return
+		return nil, err
 	}
 	headers := response.Header
 
-	res = SearchResponse{}
+	res := &SearchResponse{}
 
 	res.Control = headers.Get("cache-control")
 	res.Server = headers.Get("server")
@@ -144,7 +140,7 @@ func parseSearchResponse(httpResponse io.Reader, responseAddr *net.UDPAddr) (res
 	if headers.Get("location") != "" {
 		res.Location, err = response.Location()
 		if err != nil {
-			return
+			return nil, err
 		}
 	}
 
@@ -152,9 +148,9 @@ func parseSearchResponse(httpResponse io.Reader, responseAddr *net.UDPAddr) (res
 	if date != "" {
 		res.Date, err = http.ParseTime(date)
 		if err != nil {
-			return
+			return nil, err
 		}
 	}
 
-	return
+	return res, nil
 }
