@@ -44,7 +44,7 @@ type searchReader interface {
 // Search the network for UDPN devices using the given search string and duration
 // to discover new devices. This function will return an array of SearchReponses
 // discovered.
-func Search(st string, mx time.Duration) ([]*SearchResponse, error) {
+func Search(st string, mx time.Duration) ([]SearchResponse, error) {
 	conn, err := listenForSearchResponses()
 	if err != nil {
 		return nil, err
@@ -94,8 +94,8 @@ func buildSearchRequest(st string, mx time.Duration) ([]byte, *net.UDPAddr) {
 	return searchBytes, broadcastAddr
 }
 
-func readSearchResponses(reader searchReader, duration time.Duration) ([]*SearchResponse, error) {
-	responses := make([]*SearchResponse, 0, 10)
+func readSearchResponses(reader searchReader, duration time.Duration) ([]SearchResponse, error) {
+	responses := make([]SearchResponse, 0, 10)
 	// Only listen for responses for duration amount of time.
 	reader.SetReadDeadline(time.Now().Add(duration))
 
@@ -113,7 +113,7 @@ func readSearchResponses(reader searchReader, duration time.Duration) ([]*Search
 		if err != nil {
 			return nil, err
 		}
-		responses = append(responses, response)
+		responses = append(responses, *response)
 	}
 
 	return responses, nil
