@@ -9,22 +9,25 @@ A library that implements the client side of the UDPN (Universal Plug and Play) 
 * Write code using the library.
 
 ```Go
+package main
+
 import (
-	"udpn"
+	"github.com/bcurren/go-udpn"
 	"time"
 	"fmt"
 )
 
-responses, err = udpn.Search("upnp:rootdevice", 3*time.Second)
-if err {
-	return
-}
+func main() {
+	responses, err := udpn.Search("upnp:rootdevice", 3*time.Second)
+	if err != nil {
+		return
+	}
 
-for _, response := range responses {
-	// Do something with the response you discover
-	fmt.Println(response)
+	for _, response := range responses {
+		// Do something with the response you discover
+		fmt.Println(response)
+	}
 }
-
 ```
 ## How to contribute
 * Fork
