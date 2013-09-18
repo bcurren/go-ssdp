@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"testing"
 	"time"
+	"strings"
 )
 
 type timeoutError struct {
@@ -70,8 +71,7 @@ func Test_buildSearchRequest(t *testing.T) {
 		"\r\n"
 	expectedBroadcastAddr, _ := net.ResolveUDPAddr("udp", "239.255.255.250:1900")
 
-	searchBytes, broadcastAddr := buildSearchRequest("upnp:rootdevice",
-		time.Duration(5)*time.Second)
+	searchBytes, broadcastAddr := buildSearchRequest("upnp:rootdevice", 5*time.Second)
 
 	actualSearchRequest := string(searchBytes)
 	if expectedSearchRequest != actualSearchRequest {
@@ -90,7 +90,7 @@ func Test_readSearchResponses(t *testing.T) {
 	stub.readBuffers = append(stub.readBuffers, "HTTP/1.1 200 OK\r\n\r\n")
 	stub.readBuffers = append(stub.readBuffers, "HTTP/1.1 200 OK\r\n\r\n")
 
-	responses, err := readSearchResponses(stub, time.Duration(1)*time.Second)
+	responses, err := readSearchResponses(stub, 1*time.Second)
 	if err != nil {
 		t.Fatal("Error while retrieving reading search responses.", err)
 	}
@@ -113,7 +113,7 @@ func Test_parseSearchResponse(t *testing.T) {
 		"\r\n"
 
 	responseAddr, _ := net.ResolveUDPAddr("udp", "10.1.2.3:1900")
-	response, err := parseSearchResponse(responseBody, responseAddr)
+	response, err := parseSearchResponse(strings.NewReader(responseBody), responseAddr)
 	if err != nil {
 		t.Fatal("Error while parsing the response.", err)
 	}
@@ -138,7 +138,7 @@ func Test_parseSearchResponse(t *testing.T) {
 func Test_parseSearchResponse_NoDateOrLocation(t *testing.T) {
 	responseBody := "HTTP/1.1 200 OK\r\n\r\n"
 	responseAddr, _ := net.ResolveUDPAddr("udp", "10.1.2.3:1900")
-	response, err := parseSearchResponse(responseBody, responseAddr)
+	response, err := parseSearchResponse(strings.NewReader(responseBody), responseAddr)
 	if err != nil {
 		t.Fatal("Error while parsing the response.", err)
 	}

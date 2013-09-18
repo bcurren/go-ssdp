@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"io"
 )
 
 const (
@@ -112,7 +113,7 @@ func readSearchResponses(reader searchReader, duration time.Duration) (responses
 			return nil, err
 		}
 
-		response, err := parseSearchResponse(string(buf[:rlen]), addr)
+		response, err := parseSearchResponse(bytes.NewReader(buf[:rlen]), addr)
 		if err != nil {
 			return nil, err
 		}
@@ -122,8 +123,8 @@ func readSearchResponses(reader searchReader, duration time.Duration) (responses
 	return
 }
 
-func parseSearchResponse(httpResponse string, responseAddr *net.UDPAddr) (res SearchResponse, err error) {
-	reader := bufio.NewReader(strings.NewReader(httpResponse))
+func parseSearchResponse(httpResponse io.Reader, responseAddr *net.UDPAddr) (res SearchResponse, err error) {
+	reader := bufio.NewReader(httpResponse)
 	request := &http.Request{} // Needed for ReadResponse but doesn't have to be real
 	response, err := http.ReadResponse(reader, request)
 	if err != nil {

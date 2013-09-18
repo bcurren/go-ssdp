@@ -15,7 +15,7 @@ import (
 	"fmt"
 )
 
-responses, err = udpn.Search("upnp:rootdevice", time.Duration(3)*time.Second)
+responses, err = udpn.Search("upnp:rootdevice", 3*time.Second)
 if err {
 	return
 }
