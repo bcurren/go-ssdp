@@ -1,3 +1,5 @@
+// UDPN (Universal Plug and Play) package provides an implementation of the UDPN
+// specification.
 package udpn
 
 import (
@@ -12,10 +14,14 @@ import (
 )
 
 const (
+	// The port for UDPN discovery
 	Port        = 1900
+	
+	// The IP for UDPN broadcast
 	BroadcastIP = "239.255.255.250"
 )
 
+// The search response from a device implementing UDPN.
 type SearchResponse struct {
 	Control  string
 	Server   string
@@ -27,11 +33,16 @@ type SearchResponse struct {
 	Addr     *net.UDPAddr
 }
 
+// The search reader interface to read UDP packets on the wire with a timeout
+// period specified.
 type searchReader interface {
 	ReadFromUDP(b []byte) (n int, addr *net.UDPAddr, err error)
 	SetReadDeadline(t time.Time) error
 }
 
+// Search the network for UDPN devices using the given search string and duration
+// to discover new devices. This function will return an array of SearchReponses 
+// discovered.
 func Search(st string, mx time.Duration) (responses []SearchResponse, err error) {
 	conn, err := listenForSearchResponses()
 	if conn != nil {
@@ -146,5 +157,3 @@ func parseSearchResponse(httpResponse string, responseAddr *net.UDPAddr) (res Se
 
 	return
 }
-
-
