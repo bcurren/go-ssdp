@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"net"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
-	"strings"
 )
 
 type timeoutError struct {

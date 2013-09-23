@@ -5,13 +5,13 @@ package udpn
 import (
 	"bufio"
 	"bytes"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
-	"io"
 )
 
 const (
@@ -57,7 +57,7 @@ func Search(st string, mx time.Duration) ([]SearchResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return readSearchResponses(conn, mx)
 }
 
