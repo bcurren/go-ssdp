@@ -8,6 +8,29 @@ A library that implements the client side of SSDP (Simple Service Discovery Prot
 * ```go get http://github.com/bcurren/go-ssdp```
 * Write code using the library.
 
+### Get DeviceDescription for devices on the network
+```Go
+package main
+
+import (
+	"github.com/bcurren/go-ssdp"
+	"time"
+	"fmt"
+)
+
+func main() {
+	devices, err := ssdp.SearchForDevices("upnp:rootdevice", 3*time.Second)
+	if err != nil {
+		return
+	}
+
+	for _, device := range devices {
+		fmt.Println(device.ModelName)
+	}
+}
+```
+
+### Get Responses for Search on the network
 ```Go
 package main
 
@@ -34,3 +57,4 @@ func main() {
 * Write tests and code
 * Run go fmt
 * Submit a pull request
+
