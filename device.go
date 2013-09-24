@@ -3,6 +3,9 @@ package ssdp
 import (
 	"encoding/xml"
 	"io"
+	"net/http"
+	"net/url"
+	"time"
 )
 
 type DeviceDescription struct {
@@ -34,6 +37,58 @@ type Icon struct {
 	Height   int    `xml:"height"`
 	Depth    int    `xml:"depth"`
 	Url      string `xml:"url"`
+}
+
+func SearchForDevices(st string, mx time.Duration) ([]DeviceDescription, error) {
+	// Search for devices
+	responses, err := Search(st, mx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Reduce to unique locations
+	locations := reduceOnLocation(responses)
+
+	// Collect device description for each location
+	return collectDeviceDescriptions(locations)
+}
+
+func collectDeviceDescriptions(locations []url.URL) ([]DeviceDescription, error) {
+	deviceDescriptions := make([]DeviceDescription, 0, len(locations))
+	for _, location := range locations {
+		deviceDescription, err := getDescriptionXml(location)
+		if err != nil {
+			return nil, err
+		}
+		deviceDescriptions = append(deviceDescriptions, *deviceDescription)
+	}
+
+	return deviceDescriptions, nil
+}
+
+func getDescriptionXml(url url.URL) (*DeviceDescription, error) {
+	response, err := http.Get(url.String())
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	return decodeDescription(response.Body)
+}
+
+func reduceOnLocation(responses []SearchResponse) []url.URL {
+	uniqueLocations := make(map[url.URL]bool)
+
+	for _, response := range responses {
+		uniqueLocations[*response.Location] = true
+	}
+
+	locations := make([]url.URL, 0, len(uniqueLocations))
+	for location, _ := range uniqueLocations {
+		locations = append(locations, location)
+	}
+
+	return locations
 }
 
 func decodeDescription(reader io.Reader) (*DeviceDescription, error) {
