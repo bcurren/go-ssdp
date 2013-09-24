@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type DeviceDescription struct {
+type Device struct {
 	SpecVersion      SpecVersion `xml:"specVersion"`
 	UrlBase          string      `xml:"URLBase"`
 	DeviceType       string      `xml:"device>deviceType"`
@@ -39,34 +39,31 @@ type Icon struct {
 	Url      string `xml:"url"`
 }
 
-func SearchForDevices(st string, mx time.Duration) ([]DeviceDescription, error) {
-	// Search for devices
+func SearchForDevices(st string, mx time.Duration) ([]Device, error) {
 	responses, err := Search(st, mx)
 	if err != nil {
 		return nil, err
 	}
 
-	// Reduce to unique locations
 	locations := reduceOnLocation(responses)
 
-	// Collect device description for each location
-	return collectDeviceDescriptions(locations)
+	return collectDevices(locations)
 }
 
-func collectDeviceDescriptions(locations []url.URL) ([]DeviceDescription, error) {
-	deviceDescriptions := make([]DeviceDescription, 0, len(locations))
+func collectDevices(locations []url.URL) ([]Device, error) {
+	devices := make([]Device, 0, len(locations))
 	for _, location := range locations {
-		deviceDescription, err := getDescriptionXml(location)
+		device, err := getDescriptionXml(location)
 		if err != nil {
 			return nil, err
 		}
-		deviceDescriptions = append(deviceDescriptions, *deviceDescription)
+		devices = append(devices, *device)
 	}
 
-	return deviceDescriptions, nil
+	return devices, nil
 }
 
-func getDescriptionXml(url url.URL) (*DeviceDescription, error) {
+func getDescriptionXml(url url.URL) (*Device, error) {
 	response, err := http.Get(url.String())
 	if err != nil {
 		return nil, err
@@ -91,14 +88,14 @@ func reduceOnLocation(responses []SearchResponse) []url.URL {
 	return locations
 }
 
-func decodeDescription(reader io.Reader) (*DeviceDescription, error) {
+func decodeDescription(reader io.Reader) (*Device, error) {
 	decoder := xml.NewDecoder(reader)
 
-	deviceDescription := &DeviceDescription{}
-	err := decoder.Decode(deviceDescription)
+	device := &Device{}
+	err := decoder.Decode(device)
 	if err != nil {
 		return nil, err
 	}
 
-	return deviceDescription, nil
+	return device, nil
 }

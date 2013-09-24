@@ -28,28 +28,28 @@ func Test_parseDecriptionXml(t *testing.T) {
 		t.Fatal("Error reading in stub description.xml.", err)
 	}
 
-	deviceDescription, err := decodeDescription(bytes.NewReader(fileBytes))
+	device, err := decodeDescription(bytes.NewReader(fileBytes))
 	if err != nil {
 		t.Fatal("Could not decode description.", err)
 	}
 
-	assertEqual(t, 1, deviceDescription.SpecVersion.Major, "SpecVersion.Major")
-	assertEqual(t, 0, deviceDescription.SpecVersion.Minor, "SpecVersion.Minor")
-	assertEqual(t, "http://192.168.0.21:80/", deviceDescription.UrlBase, "UrlBase")
-	assertEqual(t, "urn:schemas-upnp-org:device:Basic:1", deviceDescription.DeviceType, "DeviceType")
-	assertEqual(t, "Philips hue (192.168.0.21)", deviceDescription.FriendlyName, "FriendlyName")
-	assertEqual(t, "Royal Philips Electronics", deviceDescription.Manufacturer, "Manufacturer")
-	assertEqual(t, "http://www.philips.com", deviceDescription.ManufacturerUrl, "ManufacturerUrl")
-	assertEqual(t, "Philips hue Personal Wireless Lighting", deviceDescription.ModelDescription, "ModelDescription")
-	assertEqual(t, "Philips hue bridge 2012", deviceDescription.ModelName, "ModelName")
-	assertEqual(t, "1000000000000", deviceDescription.ModelNumber, "ModelNumber")
-	assertEqual(t, "http://www.meethue.com", deviceDescription.ModelUrl, "ModelUrl")
-	assertEqual(t, "93eadbeef13", deviceDescription.SerialNumber, "SerialNumber")
-	assertEqual(t, "uuid:01234567-89ab-cdef-0123-456789abcdef", deviceDescription.Udn, "Udn")
-	assertEqual(t, "", deviceDescription.Upc, "Upc")
-	assertEqual(t, "index.html", deviceDescription.PresentationUrl, "PresentationUrl")
+	assertEqual(t, 1, device.SpecVersion.Major, "SpecVersion.Major")
+	assertEqual(t, 0, device.SpecVersion.Minor, "SpecVersion.Minor")
+	assertEqual(t, "http://192.168.0.21:80/", device.UrlBase, "UrlBase")
+	assertEqual(t, "urn:schemas-upnp-org:device:Basic:1", device.DeviceType, "DeviceType")
+	assertEqual(t, "Philips hue (192.168.0.21)", device.FriendlyName, "FriendlyName")
+	assertEqual(t, "Royal Philips Electronics", device.Manufacturer, "Manufacturer")
+	assertEqual(t, "http://www.philips.com", device.ManufacturerUrl, "ManufacturerUrl")
+	assertEqual(t, "Philips hue Personal Wireless Lighting", device.ModelDescription, "ModelDescription")
+	assertEqual(t, "Philips hue bridge 2012", device.ModelName, "ModelName")
+	assertEqual(t, "1000000000000", device.ModelNumber, "ModelNumber")
+	assertEqual(t, "http://www.meethue.com", device.ModelUrl, "ModelUrl")
+	assertEqual(t, "93eadbeef13", device.SerialNumber, "SerialNumber")
+	assertEqual(t, "uuid:01234567-89ab-cdef-0123-456789abcdef", device.Udn, "Udn")
+	assertEqual(t, "", device.Upc, "Upc")
+	assertEqual(t, "index.html", device.PresentationUrl, "PresentationUrl")
 
-	icons := deviceDescription.Icons
+	icons := device.Icons
 	assertEqual(t, 2, len(icons), "len(icons)")
 	assertEqual(t, "image/png", icons[0].MimeType, "icons.MimeType")
 	assertEqual(t, 48, icons[0].Width, "icons.Width")

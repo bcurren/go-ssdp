@@ -8,7 +8,7 @@ A library that implements the client side of SSDP (Simple Service Discovery Prot
 * ```go get http://github.com/bcurren/go-ssdp```
 * Write code using the library.
 
-### Get DeviceDescription for devices on the network
+### Get Device for devices on the network
 ```Go
 package main
 
