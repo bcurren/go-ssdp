@@ -1,4 +1,4 @@
-package udpn
+package ssdp
 
 import (
 	"bytes"

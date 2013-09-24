@@ -1,24 +1,24 @@
-# go-udpn
+# go-ssdp
 
-A library that implements the client side of the UDPN (Universal Plug and Play) protocol. This library, currently, supports the  search / discovery method and nothing else. Please feel free to fork and add more implementations of the protocol.
+A library that implements the client side of SSDP (Simple Service Discovery Protocol).
 
 ## Usage
 
 * [Setup your go environment](http://golang.org/doc/code.html)
-* ```go get http://github.com/bcurren/go-udpn```
+* ```go get http://github.com/bcurren/go-ssdp```
 * Write code using the library.
 
 ```Go
 package main
 
 import (
-	"github.com/bcurren/go-udpn"
+	"github.com/bcurren/go-ssdp"
 	"time"
 	"fmt"
 )
 
 func main() {
-	responses, err := udpn.Search("upnp:rootdevice", 3*time.Second)
+	responses, err := ssdp.Search("upnp:rootdevice", 3*time.Second)
 	if err != nil {
 		return
 	}

@@ -1,6 +1,6 @@
-// UDPN (Universal Plug and Play) package provides an implementation of the UDPN
+// SSDP (Simple Service Discovery Protocol) package provides an implementation of the SSDP
 // specification.
-package udpn
+package ssdp
 
 import (
 	"bufio"
@@ -15,14 +15,14 @@ import (
 )
 
 const (
-	// The port for UDPN discovery
+	// The port for SSDP discovery
 	Port = 1900
 
-	// The IP for UDPN broadcast
+	// The IP for SSDP broadcast
 	BroadcastIP = "239.255.255.250"
 )
 
-// The search response from a device implementing UDPN.
+// The search response from a device implementing SSDP.
 type SearchResponse struct {
 	Control      string
 	Server       string
@@ -41,7 +41,7 @@ type searchReader interface {
 	SetReadDeadline(t time.Time) error
 }
 
-// Search the network for UDPN devices using the given search string and duration
+// Search the network for SSDP devices using the given search string and duration
 // to discover new devices. This function will return an array of SearchReponses
 // discovered.
 func Search(st string, mx time.Duration) ([]SearchResponse, error) {
