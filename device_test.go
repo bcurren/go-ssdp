@@ -55,5 +55,5 @@ func Test_parseDecriptionXml(t *testing.T) {
 	assertEqual(t, 48, icons[0].Width, "icons.Width")
 	assertEqual(t, 48, icons[0].Height, "icons.Height")
 	assertEqual(t, 24, icons[0].Depth, "icons.Depth")
-	assertEqual(t, "hue_logo_0.png", icons[0].Url, "icons.Url")
+	assertEqual(t, "hue_logo_0.png", icons[0].URL, "icons.URL")
 }

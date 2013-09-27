@@ -36,7 +36,7 @@ type Icon struct {
 	Width    int    `xml:"width"`
 	Height   int    `xml:"height"`
 	Depth    int    `xml:"depth"`
-	Url      string `xml:"url"`
+	URL      string `xml:"url"`
 }
 
 func SearchForDevices(st string, mx time.Duration) ([]Device, error) {

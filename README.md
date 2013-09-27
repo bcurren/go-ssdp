@@ -2,6 +2,9 @@
 
 A library that implements the client side of SSDP (Simple Service Discovery Protocol).
 
+Please see [godoc.org](http://godoc.org/github.com/bcurren/go-ssdp) for a detailed API
+description.
+
 ## Usage
 
 * [Setup your go environment](http://golang.org/doc/code.html)
