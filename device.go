@@ -10,19 +10,19 @@ import (
 
 type Device struct {
 	SpecVersion      SpecVersion `xml:"specVersion"`
-	UrlBase          string      `xml:"URLBase"`
+	URLBase          string      `xml:"URLBase"`
 	DeviceType       string      `xml:"device>deviceType"`
 	FriendlyName     string      `xml:"device>friendlyName"`
 	Manufacturer     string      `xml:"device>manufacturer"`
-	ManufacturerUrl  string      `xml:"device>manufacturerURL"`
+	ManufacturerURL  string      `xml:"device>manufacturerURL"`
 	ModelDescription string      `xml:"device>modelDescription"`
 	ModelName        string      `xml:"device>modelName"`
 	ModelNumber      string      `xml:"device>modelNumber"`
-	ModelUrl         string      `xml:"device>modelURL"`
+	ModelURL         string      `xml:"device>modelURL"`
 	SerialNumber     string      `xml:"device>serialNumber"`
-	Udn              string      `xml:"device>UDN"`
-	Upc              string      `xml:"device>UPC"`
-	PresentationUrl  string      `xml:"device>presentationURL"`
+	UDN              string      `xml:"device>UDN"`
+	UPC              string      `xml:"device>UPC"`
+	PresentationURL  string      `xml:"device>presentationURL"`
 	Icons            []Icon      `xml:"device>iconList>icon"`
 }
 
@@ -32,7 +32,7 @@ type SpecVersion struct {
 }
 
 type Icon struct {
-	MimeType string `xml:"mimetype"`
+	MIMEType string `xml:"mimetype"`
 	Width    int    `xml:"width"`
 	Height   int    `xml:"height"`
 	Depth    int    `xml:"depth"`
